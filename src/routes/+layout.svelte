@@ -68,7 +68,7 @@
                 <span>{$user?.name || 'User'}</span>
               </button>
               {#if isDropdownOpen}
-                <div class="absolute right-0 -translate-x-3 mt-2 w-48 rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5">
+                <div class="absolute left-0 mt-2 w-48 rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5">
                   <button
                     on:click={handleLogout}
                     class="block w-full px-4 py-2 text-left text-sm text-neutral-700 hover:bg-neutral-100"
