@@ -388,197 +388,120 @@ With this done, you can navigate to the `/auth` route in your browser and test t
 
 ## Creating our layout component
 
-Let's structure our application's layout. We'll use the `src/routes/+layout.svelte` file to do this, and also ensure that users can only access protected routes if they're authenticated.
+Let's structure our application's layout with the `src/routes/+layout.svelte` file. Here, we'll check the user's authentication status when the application loads, and redirect the user to the authentication page if they're not authenticated. We'll also add our app's navbar to this file, so that it can be accessed from any page.
+
+First, add the `script` section to handle our layout's logic:
 
 ```svelte
-<script>
-	import { onMount } from 'svelte'
-	import { goto } from '$app/navigation'
-	import { page } from '$app/stores'
-	import { account } from '$lib/appwrite'
-	import { user } from '$lib/stores/auth'
+<script lang="ts">
 	import '../app.css'
+	import { page } from '$app/stores'
+	import { onMount } from 'svelte'
+	import { user, initAuth, logout } from '$lib/stores/auth'
+	import { goto } from '$app/navigation'
 
-	let loading = true
+	let isDropdownOpen = false
 
 	onMount(async () => {
 		try {
-			const currentUser = await account.get()
-			user.set(currentUser)
-
-			// Redirect to home if on auth page and logged in
-			if ($page.url.pathname === '/auth' && currentUser) {
-				goto('/')
-			}
-		} catch (e) {
-			// Redirect to auth page if not logged in and not already there
-			if ($page.url.pathname !== '/auth') {
+			const currentUser = await initAuth()
+			if (!currentUser && !$page.url.pathname.startsWith('/auth')) {
 				goto('/auth')
 			}
-		} finally {
-			loading = false
+		} catch (error) {
+			if (!$page.url.pathname.startsWith('/auth')) {
+				goto('/auth')
+			}
 		}
 	})
-</script>
 
-{#if loading}
-	<div class="flex min-h-screen items-center justify-center">
-		<div class="loading-spinner"></div>
-	</div>
-{:else}
-	<slot />
-{/if}
-```
+	const toggleDropdown = () => {
+		isDropdownOpen = !isDropdownOpen
+	}
 
-This layout component serves several crucial purposes:
-
-1. It checks the user's authentication status when the application loads
-2. It handles navigation based on authentication state
-3. It provides a loading state while authentication is being checked
-4. It ensures users can't access protected routes without authentication
-
-The `onMount` function runs when the component is first mounted. It attempts to retrieve the current user's information from Appwrite. If successful, it updates our user store and handles any necessary redirects. If there's no authenticated user, it ensures they're redirected to the authentication page.
-
-## Building the authentication page
-
-Now let's create our authentication page that handles both sign-in and sign-up. Create `src/routes/auth/+page.svelte`:
-
-```svelte
-<script>
-	import { account } from '$lib/appwrite'
-	import { goto } from '$app/navigation'
-	import { ID } from 'appwrite'
-	import { user } from '$lib/stores/auth'
-
-	let email = ''
-	let password = ''
-	let name = ''
-	let isLogin = true
-	let loading = false
-	let error = null
-
-	async function handleSubmit() {
+	const handleLogout = async () => {
 		try {
-			loading = true
-			error = null
-
-			if (isLogin) {
-				await account.createEmailPasswordSession(email, password)
-			} else {
-				await account.create(ID.unique(), email, password, name)
-				await account.createEmailPasswordSession(email, password)
-			}
-
-			// Update user store after successful login
-			const currentUser = await account.get()
-			user.set(currentUser)
-			goto('/')
-		} catch (e) {
-			console.error('Auth error:', e)
-			error = isLogin ? 'Invalid credentials' : 'Failed to create account'
-		} finally {
-			loading = false
+			await logout()
+			goto('/auth')
+		} catch (error) {
+			console.error('Logout failed:', error)
 		}
 	}
 </script>
 ```
 
-This script section handles the core authentication logic. Let's add the template section that creates our authentication interface:
+In the `onMount` function, we're checking the user's authentication status when the application loads. If the user is not authenticated, we redirect them to the authentication page. This function runs when the component is first mounted.
+
+The `toggleDropdown` function handles the dropdown menu's open/close state, which we'll use to show the logout button in the navbar. We can also use this dropdown for other purposes, like showing the user's profile information.
+
+The `handleLogout` function handles the user's logout process. It calls the `logout` function from our `auth.js` file and redirects the user to the authentication page.
+
+Next, let's add the template section for our layout's UI:
 
 ```svelte
-<div class="auth-container">
-	<div class="auth-content">
-		<div class="auth-header">
-			<div class="mb-3 text-4xl">💰</div>
-			<h2 class="auth-title">
-				{isLogin ? 'Welcome back!' : 'Create your account'}
-			</h2>
-			<p class="auth-subtitle">
-				{isLogin
-					? "Track your expenses with ease. Let's get you signed in."
-					: 'Start your journey to better expense management'}
+<div class="layout-container">
+	<nav class="main-nav">
+		<div class="nav-container">
+			<div class="nav-content">
+				<div class="flex items-center">
+					<a href="/" class="brand-link">
+						<span class="brand-emoji">💰</span>
+						<span class="brand-text">ExpenseTracker</span>
+					</a>
+				</div>
+
+				{#if $user}
+					<div class="user-nav">
+						<div class="user-dropdown">
+							<button on:click={toggleDropdown} class="user-button">
+								<img
+									src={`https://api.dicebear.com/7.x/initials/svg?seed=${$user?.name || 'User'}`}
+									alt="avatar"
+									class="user-avatar"
+								/>
+								<span>{$user?.name || 'User'}</span>
+							</button>
+							{#if isDropdownOpen}
+								<div class="dropdown-menu">
+									<button on:click={handleLogout} class="dropdown-item"> Sign out </button>
+								</div>
+							{/if}
+						</div>
+					</div>
+				{/if}
+			</div>
+		</div>
+	</nav>
+
+	<main class="main-content">
+		{#if !$page.url.pathname.startsWith('/auth')}
+			<div class="content-container">
+				<slot />
+			</div>
+		{:else}
+			<slot />
+		{/if}
+	</main>
+
+	<footer class="main-footer">
+		<div class="footer-container">
+			<p class="footer-text">
+				&copy; {new Date().getFullYear()} ExpenseTracker. All rights reserved.
 			</p>
 		</div>
-
-		{#if error}
-			<div class="auth-error">
-				{error}
-			</div>
-		{/if}
-
-		<form on:submit|preventDefault={handleSubmit} class="auth-form">
-			{#if !isLogin}
-				<div>
-					<label for="name" class="form-label"> Full Name </label>
-					<input
-						type="text"
-						id="name"
-						bind:value={name}
-						required
-						class="input form-input-container"
-						placeholder="John Doe"
-					/>
-				</div>
-			{/if}
-
-			<div>
-				<label for="email" class="form-label"> Email address </label>
-				<input
-					type="email"
-					id="email"
-					bind:value={email}
-					required
-					class="input form-input-container"
-					placeholder="you@example.com"
-				/>
-			</div>
-
-			<div>
-				<label for="password" class="form-label"> Password </label>
-				<input
-					type="password"
-					id="password"
-					bind:value={password}
-					required
-					minlength="8"
-					class="input form-input-container"
-					placeholder="••••••••"
-				/>
-			</div>
-
-			<div>
-				<button
-					type="submit"
-					class="btn btn-primary w-full {loading ? 'opacity-75 cursor-not-allowed' : ''}"
-					disabled={loading}
-				>
-					{#if loading}
-						<div class="loading-spinner-small mr-2"></div>
-					{/if}
-					{isLogin ? 'Sign in' : 'Create account'}
-				</button>
-			</div>
-		</form>
-
-		<div class="text-center">
-			<button
-				on:click={() => (isLogin = !isLogin)}
-				class="text-sm text-primary-600 hover:text-primary-500"
-			>
-				{isLogin ? "Don't have an account? Sign up" : 'Already have an account? Sign in'}
-			</button>
-		</div>
-	</div>
+	</footer>
 </div>
 ```
 
-This authentication page provides a clean, user-friendly interface for both signing in and creating new accounts. The form dynamically changes based on whether the user is logging in or signing up, showing additional fields when needed. The component handles loading states and error messages, providing clear feedback to users during the authentication process.
+Here, we're adding a navbar to our layout. The navbar contains a brand logo and a user dropdown menu which displays the user's avatar and name. We're getting the user's avatar from the `api.dicebear.com` URL, which generates an avatar based on the user's initials. The user's name is gotten from the `user` store, and it's what handles the dropdown menu's open/close state.
+
+Notice that we've also added a footer to our layout. This footer contains a copyright notice. You can customize this footer to fit your app's needs, and provide links to your app's privacy policy and terms of service.
 
 ## Building the main expense tracker page
 
-The heart of our application is the expense tracker page. This component handles displaying, creating, updating, and deleting expenses, along with showing important statistics. Let's break down its implementation step by step.
+The heart of our application is the expense tracker page. This component handles displaying, creating, updating, and deleting expenses, along with showing important statistics. Let's build this page in the `src/routes/+page.svelte` file.
 
-First, create `src/routes/+page.svelte` and start with our imports and state management:
+We'll start with our imports and state management:
 
 ```svelte
 <script lang="ts">

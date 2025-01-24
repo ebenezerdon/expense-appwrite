@@ -314,7 +314,3 @@
 		{/if}
 	</div>
 </div>
-
-<style>
-	/* Add any additional component-specific styles here */
-</style>
