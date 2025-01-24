@@ -29,8 +29,7 @@ export async function login(email, password) {
 export async function register(email, password, name) {
 	try {
 		await account.create(ID.unique(), email, password, name)
-		await account.createEmailPasswordSession(email, password)
-		await initAuth()
+		await login(email, password)
 	} catch (error) {
 		console.error('Registration error:', error)
 		throw error
