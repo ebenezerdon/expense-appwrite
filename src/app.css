@@ -247,6 +247,78 @@
 	.empty-state-text {
 		@apply text-neutral-600;
 	}
+
+	.layout-container {
+		@apply flex min-h-screen flex-col;
+	}
+
+	.main-nav {
+		@apply border-b border-neutral-200 bg-white;
+	}
+
+	.nav-container {
+		@apply mx-auto max-w-7xl px-4 sm:px-6 lg:px-8;
+	}
+
+	.nav-content {
+		@apply flex h-16 items-center justify-between;
+	}
+
+	.brand-link {
+		@apply flex items-center space-x-2;
+	}
+
+	.brand-emoji {
+		@apply text-2xl font-bold text-primary-600;
+	}
+
+	.brand-text {
+		@apply text-lg font-semibold text-neutral-900;
+	}
+
+	.user-nav {
+		@apply flex items-center space-x-4;
+	}
+
+	.user-dropdown {
+		@apply relative;
+	}
+
+	.user-button {
+		@apply flex items-center space-x-1 rounded-lg px-3 py-2 text-sm font-medium text-neutral-600 hover:text-primary-600;
+	}
+
+	.user-avatar {
+		@apply h-8 w-8 rounded-full;
+	}
+
+	.dropdown-menu {
+		@apply absolute left-0 mt-2 w-48 rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5;
+	}
+
+	.dropdown-item {
+		@apply block w-full px-4 py-2 text-left text-sm text-neutral-700 hover:bg-neutral-100;
+	}
+
+	.main-content {
+		@apply flex-1;
+	}
+
+	.content-container {
+		@apply mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8;
+	}
+
+	.main-footer {
+		@apply border-t border-neutral-200 bg-white;
+	}
+
+	.footer-container {
+		@apply mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8;
+	}
+
+	.footer-text {
+		@apply text-center text-sm text-neutral-600;
+	}
 }
 
 /* Custom Animations */

@@ -34,41 +34,31 @@
 	}
 </script>
 
-<div class="flex min-h-screen flex-col">
-	<nav class="border-b border-neutral-200 bg-white">
-		<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-			<div class="flex h-16 items-center justify-between">
+<div class="layout-container">
+	<nav class="main-nav">
+		<div class="nav-container">
+			<div class="nav-content">
 				<div class="flex items-center">
-					<a href="/" class="flex items-center space-x-2">
-						<span class="text-2xl font-bold text-primary-600">💰</span>
-						<span class="text-lg font-semibold text-neutral-900">ExpenseTracker</span>
+					<a href="/" class="brand-link">
+						<span class="brand-emoji">💰</span>
+						<span class="brand-text">ExpenseTracker</span>
 					</a>
 				</div>
 
 				{#if $user}
-					<div class="flex items-center space-x-4">
-						<div class="relative">
-							<button
-								on:click={toggleDropdown}
-								class="flex items-center space-x-1 rounded-lg px-3 py-2 text-sm font-medium text-neutral-600 hover:text-primary-600"
-							>
+					<div class="user-nav">
+						<div class="user-dropdown">
+							<button on:click={toggleDropdown} class="user-button">
 								<img
 									src={`https://api.dicebear.com/7.x/initials/svg?seed=${$user?.name || 'User'}`}
 									alt="avatar"
-									class="h-8 w-8 rounded-full"
+									class="user-avatar"
 								/>
 								<span>{$user?.name || 'User'}</span>
 							</button>
 							{#if isDropdownOpen}
-								<div
-									class="absolute left-0 mt-2 w-48 rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5"
-								>
-									<button
-										on:click={handleLogout}
-										class="block w-full px-4 py-2 text-left text-sm text-neutral-700 hover:bg-neutral-100"
-									>
-										Sign out
-									</button>
+								<div class="dropdown-menu">
+									<button on:click={handleLogout} class="dropdown-item"> Sign out </button>
 								</div>
 							{/if}
 						</div>
@@ -78,9 +68,9 @@
 		</div>
 	</nav>
 
-	<main class="flex-1">
+	<main class="main-content">
 		{#if !$page.url.pathname.startsWith('/auth')}
-			<div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+			<div class="content-container">
 				<slot />
 			</div>
 		{:else}
@@ -88,9 +78,9 @@
 		{/if}
 	</main>
 
-	<footer class="border-t border-neutral-200 bg-white">
-		<div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-			<p class="text-center text-sm text-neutral-600">
+	<footer class="main-footer">
+		<div class="footer-container">
+			<p class="footer-text">
 				&copy; {new Date().getFullYear()} ExpenseTracker. All rights reserved.
 			</p>
 		</div>
