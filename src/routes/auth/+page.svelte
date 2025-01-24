@@ -2,7 +2,7 @@
 	import { account } from '$lib/appwrite'
 	import { goto } from '$app/navigation'
 	import { ID } from 'appwrite'
-	import { user } from '$lib/stores/auth'
+	import { login, register, user } from '$lib/stores/auth'
 
 	let email = ''
 	let password = ''
@@ -17,10 +17,9 @@
 			error = null
 
 			if (isLogin) {
-				await account.createEmailPasswordSession(email, password)
+				await login(email, password)
 			} else {
-				await account.create(ID.unique(), email, password, name)
-				await account.createEmailPasswordSession(email, password)
+				await register(email, password, name)
 			}
 
 			// Update user store after successful login
