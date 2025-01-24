@@ -145,12 +145,6 @@
 		}
 		showForm = true
 	}
-
-	function cancelEdit() {
-		editingExpense = null
-		editFormData = { amount: '', description: '', category: 'other' }
-		showForm = false
-	}
 </script>
 
 <div class="page-container">
