@@ -24,11 +24,13 @@
 
 	const categories = [
 		{ id: 'food', name: 'Food & Dining', icon: '🍽️' },
-		{ id: 'transport', name: 'Transportation', icon: '🚗' },
-		{ id: 'shopping', name: 'Shopping', icon: '🛍️' },
+		{ id: 'rent', name: 'Rent', icon: '🏠' },
+		{ id: 'transportation', name: 'Transportation', icon: '🚗' },
 		{ id: 'entertainment', name: 'Entertainment', icon: '🎮' },
-		{ id: 'health', name: 'Healthcare', icon: '🏥' },
+		{ id: 'shopping', name: 'Shopping', icon: '🛍️' },
+		{ id: 'healthcare', name: 'Healthcare', icon: '🏥' },
 		{ id: 'utilities', name: 'Utilities', icon: '💡' },
+		{ id: 'education', name: 'Education', icon: '📚' },
 		{ id: 'other', name: 'Other', icon: '📦' }
 	]
 
