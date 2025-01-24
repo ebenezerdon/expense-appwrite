@@ -42,14 +42,6 @@
 	$: currentDescription = editingExpense ? editFormData.description : formData.description
 	$: currentCategory = editingExpense ? editFormData.category : formData.category
 
-	function handleInputChange(field, value) {
-		if (editingExpense) {
-			editFormData[field] = value
-		} else {
-			formData[field] = value
-		}
-	}
-
 	onMount(async () => {
 		await fetchExpenses()
 	})
