@@ -47,14 +47,6 @@
 
         {#if $user}
           <div class="flex items-center space-x-4">
-            <a
-              href="/"
-              class="px-3 py-2 text-sm font-medium {$page.url.pathname === '/'
-                ? 'text-primary-600'
-                : 'text-neutral-600 hover:text-primary-600'}"
-            >
-              Dashboard
-            </a>
             <div class="relative">
               <button
                 on:click={toggleDropdown}
