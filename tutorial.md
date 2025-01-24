@@ -41,15 +41,13 @@ Add Playwright for browser testing? › No
 Add Vitest for unit testing? › No
 ```
 
-These choices create a minimal but well-structured project with TypeScript support and Tailwind CSS for styling. After the project is created, navigate to the project directory and install our additional dependencies:
+These choices create a minimal but well-structured project with TypeScript support and Tailwind CSS for styling. After the project is created, navigate to the project directory and install our additional dependencies. We'll need Appwrite for authentication and database operations, and date-fns for date formatting:
 
 ```bash
 cd expense-app
 pnpm install
 pnpm add appwrite date-fns
 ```
-
-The date-fns library will help us handle date formatting and calculations in a lightweight, modular way.
 
 ## Environment Configuration
 
