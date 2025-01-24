@@ -2,7 +2,7 @@
 	import { onMount } from 'svelte'
 	import { databases, account } from '$lib/appwrite'
 	import { DATABASE_ID, EXPENSES_COLLECTION_ID } from '$lib/appwrite'
-	import { Query } from 'appwrite'
+	import { Query, Permission, Role } from 'appwrite'
 	import { formatDistanceToNow } from 'date-fns'
 
 	let expenses = []
@@ -93,10 +93,20 @@
 			if (editingExpense) {
 				await databases.updateDocument(DATABASE_ID, EXPENSES_COLLECTION_ID, editingExpense.$id, {
 					...expenseData,
-					updatedAt: now // Only update the updatedAt timestamp
+					updatedAt: now
 				})
 			} else {
-				await databases.createDocument(DATABASE_ID, EXPENSES_COLLECTION_ID, 'unique()', expenseData)
+				await databases.createDocument(
+					DATABASE_ID,
+					EXPENSES_COLLECTION_ID,
+					'unique()',
+					expenseData,
+					[
+						Permission.read(Role.user(user.$id)),
+						Permission.update(Role.user(user.$id)),
+						Permission.delete(Role.user(user.$id))
+					]
+				)
 			}
 
 			// Reset form
