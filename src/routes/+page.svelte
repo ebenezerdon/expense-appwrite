@@ -191,7 +191,7 @@
 					<h2 class="modal-title">
 						{editingExpense ? 'Edit Expense' : 'Add New Expense'}
 					</h2>
-					<button on:click={() => (showForm = false)} class="close-button">
+					<button on:click={() => (showForm = false)} class="close-button" aria-label="Close modal">
 						<svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 							<path
 								stroke-linecap="round"
@@ -290,6 +290,7 @@
 							<button
 								on:click={() => editExpense(expense)}
 								class="action-button action-button-edit"
+								aria-label="Edit expense"
 							>
 								<svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
 									<path
@@ -300,6 +301,7 @@
 							<button
 								on:click={() => deleteExpense(expense.$id)}
 								class="action-button action-button-delete"
+								aria-label="Delete expense"
 							>
 								<svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
 									<path
