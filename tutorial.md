@@ -83,9 +83,15 @@ The expenses collection needs several attributes to store the expense data effec
 
 Notice that the `category` attribute is an enumerated type with a set of predefined values. This structured approach helps us organize and filter expenses effectively. We have both a `date` attribute and a `createdAt` attribute because when an expense is created is not necessarily the same as when it occurred.
 
+To ensure that users can only access their own expenses, Open the collection's **Settings** tab scroll to **Permissions**. Click **Add role**, select **Users** and check **Create** permission.
+
+Next, enable **Document Security** to allow users to access their documents. We'll ensure this by giving users the **Read** permission when creating documents in our code.
+
+[!Permissions and Document security image here]
+
 ## Project structure
 
-Our application needs a clear structure. Create the following directory structure in your project:
+Our application needs a clear structure to make it easy to maintain. Create the following directory structure in your project:
 
 ```
 src/
@@ -537,11 +543,13 @@ Next, let's define our expense categories and statistics tracking:
 ```svelte
 	const categories = [
 		{ id: 'food', name: 'Food & Dining', icon: '🍽️' },
-		{ id: 'transport', name: 'Transportation', icon: '🚗' },
-		{ id: 'shopping', name: 'Shopping', icon: '🛍️' },
+		{ id: 'rent', name: 'Rent', icon: '🏠' },
+		{ id: 'transportation', name: 'Transportation', icon: '🚗' },
 		{ id: 'entertainment', name: 'Entertainment', icon: '🎮' },
-		{ id: 'health', name: 'Healthcare', icon: '🏥' },
+		{ id: 'shopping', name: 'Shopping', icon: '🛍️' },
+		{ id: 'healthcare', name: 'Healthcare', icon: '🏥' },
 		{ id: 'utilities', name: 'Utilities', icon: '💡' },
+		{ id: 'education', name: 'Education', icon: '📚' },
 		{ id: 'other', name: 'Other', icon: '📦' }
 	]
 
@@ -596,7 +604,7 @@ Now let's implement our core functionality for fetching and managing expenses:
 	}
 ```
 
-The `fetchExpenses` function retrieves our expenses from Appwrite and sorts them by creation date. After fetching, we calculate statistics including total expenses, this month's expenses, and this week's expenses.
+The `fetchExpenses` function retrieves our expenses from Appwrite and sorts them by creation date, but you might want to sort instead by the date of the expense, depending on how you want to display expenses. After fetching, we calculate statistics including total expenses, this month's expenses, and this week's expenses.
 
 Let's add the functionality for creating and updating expenses:
 
@@ -647,7 +655,7 @@ Let's add the functionality for creating and updating expenses:
 	}
 ```
 
-The `handleSubmit` function handles both creating new expenses and updating existing ones. When creating a new expense, we set document-level permissions to ensure users can only access their own expenses.
+The `handleSubmit` function handles both creating new expenses and updating existing ones. When creating a new expense, we set document-level permissions to ensure users can access their expenses. Here, we're giving users the **Read**, **Update**, and **Delete** permissions.
 
 Finally, let's add utility functions for managing expenses:
 
@@ -797,73 +805,72 @@ The expense form appears in a modal overlay when users click the "Add Expense" b
 Finally, let's implement the expenses list that displays all recorded expenses:
 
 ```svelte
-	<!-- Expenses List -->
-	<div class="expense-list">
-		<h2 class="modal-title">Recent Expenses</h2>
-		{#if loading}
-			<div class="flex justify-center py-8">
-				<div class="loading-spinner"></div>
-			</div>
-		{:else if error}
-			<div class="auth-error">
-				<p>{error}</p>
-			</div>
-		{:else if expenses.length === 0}
-			<div class="empty-state">
-				<div class="empty-state-icon">💸</div>
-				<h3 class="empty-state-title">No expenses yet</h3>
-				<p class="empty-state-text">Start tracking your expenses by adding one above!</p>
-			</div>
-		{:else}
-			<div class="expense-list">
-				{#each expenses as expense}
-					<div class="expense-item">
-						<div class="expense-details">
-							<div class="expense-icon">
-								{getCategoryIcon(expense.category)}
-							</div>
-							<div>
-								<p class="expense-description">{expense.description}</p>
-								<p class="expense-meta">
-									{getCategoryName(expense.category)} •
-									{formatDistanceToNow(new Date(expense.$createdAt), { addSuffix: true })}
-								</p>
-							</div>
+<!-- Expenses List -->
+<div class="expense-list">
+	<h2 class="modal-title">Recent Expenses</h2>
+	{#if loading}
+		<div class="flex justify-center py-8">
+			<div class="loading-spinner"></div>
+		</div>
+	{:else if error}
+		<div class="auth-error">
+			<p>{error}</p>
+		</div>
+	{:else if expenses.length === 0}
+		<div class="empty-state">
+			<div class="empty-state-icon">💸</div>
+			<h3 class="empty-state-title">No expenses yet</h3>
+			<p class="empty-state-text">Start tracking your expenses by adding one above!</p>
+		</div>
+	{:else}
+		<div class="expense-list">
+			{#each expenses as expense}
+				<div class="expense-item">
+					<div class="expense-details">
+						<div class="expense-icon">
+							{getCategoryIcon(expense.category)}
 						</div>
-						<div class="expense-actions">
-							<p class="expense-amount">
-								{formatAmount(expense.amount)}
+						<div>
+							<p class="expense-description">{expense.description}</p>
+							<p class="expense-meta">
+								{getCategoryName(expense.category)} •
+								{formatDistanceToNow(new Date(expense.$createdAt), { addSuffix: true })}
 							</p>
-							<button
-								on:click={() => editExpense(expense)}
-								class="action-button action-button-edit"
-								aria-label="Edit expense"
-							>
-								<svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-									<path
-										d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"
-									/>
-								</svg>
-							</button>
-							<button
-								on:click={() => deleteExpense(expense.$id)}
-								class="action-button action-button-delete"
-								aria-label="Delete expense"
-							>
-								<svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-									<path
-										fill-rule="evenodd"
-										d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
-										clip-rule="evenodd"
-									/>
-								</svg>
-							</button>
 						</div>
 					</div>
-				{/each}
-			</div>
-		{/if}
-	</div>
+					<div class="expense-actions">
+						<p class="expense-amount">
+							{formatAmount(expense.amount)}
+						</p>
+						<button
+							on:click={() => editExpense(expense)}
+							class="action-button action-button-edit"
+							aria-label="Edit expense"
+						>
+							<svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+								<path
+									d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"
+								/>
+							</svg>
+						</button>
+						<button
+							on:click={() => deleteExpense(expense.$id)}
+							class="action-button action-button-delete"
+							aria-label="Delete expense"
+						>
+							<svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+								<path
+									fill-rule="evenodd"
+									d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
+									clip-rule="evenodd"
+								/>
+							</svg>
+						</button>
+					</div>
+				</div>
+			{/each}
+		</div>
+	{/if}
 </div>
 ```
 
@@ -893,15 +900,9 @@ With all components and styles in place, we can now run our application. Start t
 pnpm dev
 ```
 
-Visit `http://localhost:5173` in your browser, and you should see a fully functional expense tracking application with:
+Visit the displayed URL in your browser, and you should see a fully functional expense tracking application that looks like this:
 
-1. A clean, modern interface that adapts to different screen sizes
-2. Smooth transitions and interactions that provide visual feedback
-3. Clear hierarchy of information with statistics prominently displayed
-4. Intuitive expense management through an accessible form interface
-5. Comprehensive expense listing with filtering and sorting capabilities
-
-The application combines Svelte's reactive capabilities with Appwrite's backend services to create a responsive, real-time expense tracking experience. Users can manage their expenses efficiently while enjoying a polished, professional interface.
+[!Expense tracker gif demo here]
 
 ## Next steps and enhancements
 
