@@ -904,16 +904,20 @@ Visit the displayed URL in your browser, and you should see a fully functional e
 
 [!Expense tracker gif demo here]
 
-## Next steps and enhancements
+## Next steps
 
-Our expense tracker provides a solid foundation for personal finance management, but there's always room for growth. Consider enhancing the application by implementing data visualizations using chart libraries to help users understand their spending patterns. You might also add advanced filtering capabilities, allowing users to search and sort their expenses more effectively. The ability to export data for external analysis and custom category management would further empower users to take control of their financial data.
+The expense tracker can be enhanced in several ways. Data visualization with charts would help users understand their spending patterns over time. Advanced filtering and search would make it easier to find specific expenses or analyze spending by category.
+
+Data export would let users analyze their expenses in external tools. Custom categories would let users organize expenses in ways that make sense for them. Budget tracking with alerts could help users stay within spending limits, while receipt image uploads would provide better expense documentation.
 
 ## Conclusion
 
-Throughout this tutorial, we've built a modern, full-stack expense tracking application that demonstrates the power of combining Svelte with Appwrite. By implementing user authentication and a responsive user interface, we've created a practical tool that solves a real-world problem while exploring important web development concepts.
+In this tutorial, we built an expense tracking application using SvelteKit and Appwrite. We implemented core features including user authentication, database storage, and a responsive interface that works on different devices.
 
-The project showcases several key aspects of modern web development: component-based architecture with Svelte, secure authentication and database management with Appwrite, and responsive design with Tailwind CSS. We've seen how these technologies work together to create a seamless user experience, from the initial login to managing daily expenses.
+The component-based structure we used makes the code easier to maintain and update. We covered practical aspects like securing user data, managing state, and handling form submissions - skills that apply to many web applications.
 
-More importantly, this project serves as a foundation for understanding how to structure larger applications. The patterns we've used – such as reactive state management, component composition, and secure data handling – apply to many other web applications you might build in the future.
+Use this project as a starting point and build upon it based on what you need. The code is available on GitHub if you want to explore it further. You can also visit the [live application](https://expense-tracker-ebenezerdon.vercel.app/) to see it in action.
 
-Remember that good software evolves with its users' needs. While our expense tracker is fully functional, the best applications grow and improve based on real user feedback and changing requirements. Whether you're building this for personal use or as a learning exercise, consider how you might adapt and enhance it to better serve its users' needs.
+If you have any questions or feedback, you can reach out to me on [LinkedIn](https://www.linkedin.com/in/ebenezerdon/) or join our [Discord community](https://appwrite.io/discord).
+
+## Further reading
