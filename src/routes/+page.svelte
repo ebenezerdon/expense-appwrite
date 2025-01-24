@@ -87,21 +87,24 @@
 	async function handleSubmit() {
 		try {
 			const user = await account.get()
+			const now = new Date().toISOString()
+			const expenseData = {
+				amount: parseFloat(currentAmount),
+				description: currentDescription,
+				category: currentCategory,
+				userId: user.$id,
+				date: now,
+				createdAt: now,
+				updatedAt: now
+			}
 
 			if (editingExpense) {
 				await databases.updateDocument(DATABASE_ID, EXPENSES_COLLECTION_ID, editingExpense.$id, {
-					amount: parseFloat(currentAmount),
-					description: currentDescription,
-					category: currentCategory,
-					userId: user.$id
+					...expenseData,
+					updatedAt: now // Only update the updatedAt timestamp
 				})
 			} else {
-				await databases.createDocument(DATABASE_ID, EXPENSES_COLLECTION_ID, 'unique()', {
-					amount: parseFloat(currentAmount),
-					description: currentDescription,
-					category: currentCategory,
-					userId: user.$id
-				})
+				await databases.createDocument(DATABASE_ID, EXPENSES_COLLECTION_ID, 'unique()', expenseData)
 			}
 
 			// Reset form
@@ -112,6 +115,7 @@
 			await fetchExpenses()
 		} catch (e) {
 			console.error('Error saving expense:', e)
+			error = 'Failed to save expense'
 		}
 	}
 
