@@ -36,14 +36,14 @@
 	}
 </script>
 
-<div class="flex min-h-screen items-center justify-center bg-neutral-50 px-4 py-6 sm:px-6 lg:px-8">
-	<div class="w-full max-w-md -mt-32 space-y-6">
-		<div class="text-center">
+<div class="auth-container">
+	<div class="auth-content">
+		<div class="auth-header">
 			<div class="mb-3 text-4xl">💰</div>
-			<h2 class="text-3xl font-bold tracking-tight text-neutral-900">
+			<h2 class="auth-title">
 				{isLogin ? 'Welcome back!' : 'Create your account'}
 			</h2>
-			<p class="mt-2 text-sm text-neutral-600">
+			<p class="auth-subtitle">
 				{isLogin
 					? "Track your expenses with ease. Let's get you signed in."
 					: 'Start your journey to better expense management'}
@@ -51,49 +51,47 @@
 		</div>
 
 		{#if error}
-			<div class="rounded-lg bg-red-50 p-4 text-sm text-red-700">
+			<div class="auth-error">
 				{error}
 			</div>
 		{/if}
 
-		<form on:submit|preventDefault={handleSubmit} class="mt-6 space-y-4">
+		<form on:submit|preventDefault={handleSubmit} class="auth-form">
 			{#if !isLogin}
 				<div>
-					<label for="name" class="block text-sm font-medium text-neutral-700"> Full Name </label>
+					<label for="name" class="form-label"> Full Name </label>
 					<input
 						type="text"
 						id="name"
 						bind:value={name}
 						required
-						class="input mt-1 block w-full"
+						class="input form-input-container"
 						placeholder="John Doe"
 					/>
 				</div>
 			{/if}
 
 			<div>
-				<label for="email" class="block text-sm font-medium text-neutral-700">
-					Email address
-				</label>
+				<label for="email" class="form-label"> Email address </label>
 				<input
 					type="email"
 					id="email"
 					bind:value={email}
 					required
-					class="input mt-1 block w-full"
+					class="input form-input-container"
 					placeholder="you@example.com"
 				/>
 			</div>
 
 			<div>
-				<label for="password" class="block text-sm font-medium text-neutral-700"> Password </label>
+				<label for="password" class="form-label"> Password </label>
 				<input
 					type="password"
 					id="password"
 					bind:value={password}
 					required
 					minlength="8"
-					class="input mt-1 block w-full"
+					class="input form-input-container"
 					placeholder="••••••••"
 				/>
 			</div>
@@ -105,9 +103,7 @@
 					disabled={loading}
 				>
 					{#if loading}
-						<div
-							class="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"
-						></div>
+						<div class="loading-spinner-small mr-2"></div>
 					{/if}
 					{isLogin ? 'Sign in' : 'Create account'}
 				</button>
