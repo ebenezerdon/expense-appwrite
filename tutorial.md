@@ -1,4 +1,4 @@
-# Building an Expense Tracker with Svelte and Appwrite
+# Building an expense tracker with Svelte and Appwrite
 
 In this tutorial, we'll build a full-stack expense tracking application with features like user authentication and expense management. You'll learn how to:
 
@@ -7,7 +7,7 @@ In this tutorial, we'll build a full-stack expense tracking application with fea
 - Create a responsive UI for managing expenses
 - Build a complete CRUD interface for expenses
 
-## Tech Stack
+## Tech stack
 
 - **Frontend**: SvelteKit with TypeScript and Tailwind CSS
 - **Backend**: Appwrite for auth and database operations
@@ -21,7 +21,7 @@ This tutorial assumes you have basic knowledge of TypeScript and Svelte. You'll 
 - pnpm as your package manager
 - An Appwrite instance (either self-hosted or cloud)
 
-## Project Setup and Initial Configuration
+## Project setup and initial configuration
 
 Let's start by creating a new Svelte project. Open your terminal and run:
 
@@ -29,19 +29,17 @@ Let's start by creating a new Svelte project. Open your terminal and run:
 npx sv create expense-app
 ```
 
-When prompted, make these selections to set up our development environment:
+When prompted to select a template, choose "Sveltekit minimal". For type checking, you can select "Yes" or "No", depending on your preference, but we'll go with "No" for this tutorial.
+
+For the question "What would you like to add to your project?", select "prettier" and "tailwindcss". Next, choose your preferred package manager, then create your Sveltekit project. In this tutorial, we'll use **pnpm**.
+
+With that done, you should have your new Sveltekit project named `expense-app`. You can test it by running:
 
 ```bash
-Which Svelte app template? › Skeleton project
-Add type checking with TypeScript? › Yes
-Add Tailwind CSS for styling? › Yes
-Add ESLint for code linting? › Yes
-Add Prettier for code formatting? › Yes
-Add Playwright for browser testing? › No
-Add Vitest for unit testing? › No
+pnpm dev
 ```
 
-These choices create a minimal but well-structured project with TypeScript support and Tailwind CSS for styling. After the project is created, navigate to the project directory and install our additional dependencies. We'll need Appwrite for authentication and database operations, and date-fns for date formatting:
+Next, navigate to the project directory and install the additional dependencies we need. We'll use `appwrite` for authentication and database operations, and `date-fns` for date formatting:
 
 ```bash
 cd expense-app
@@ -49,65 +47,52 @@ pnpm install
 pnpm add appwrite date-fns
 ```
 
-## Environment Configuration
+## Environment configuration
 
-Our application needs to communicate with Appwrite, which requires several configuration values. Create two files in your project root: `.env` and `.env.example`. The `.env.example` file serves as a template for other developers, while `.env` contains your actual configuration values.
-
-In both files, add these environment variables:
+Our application needs to communicate with [Appwrite](https://cloud.appwrite.io?doFollow=true), which requires several configuration values. Create a `.env` file in your project root and add these environment variables:
 
 ```env
 PUBLIC_APPWRITE_ENDPOINT=https://cloud.appwrite.io/v1
 PUBLIC_APPWRITE_PROJECT_ID=your-project-id
-PUBLIC_APPWRITE_DATABASE_ID=expense-tracker
+PUBLIC_APPWRITE_DATABASE_ID=expense-db
 PUBLIC_APPWRITE_COLLECTION_ID=expenses
 ```
 
-The `PUBLIC_` prefix makes these variables available to our client-side code in Svelte. Replace `your-project-id` with your actual Appwrite project ID.
+The `PUBLIC_` prefix makes these variables available to our client-side code in Svelte. You'll need to replace `your-project-id` with your actual Appwrite project ID, which we'll create in the next step.
 
-## Setting Up Appwrite
+## Setting up Appwrite
 
-Before we continue with our frontend development, we need to configure our Appwrite backend. Log into your Appwrite Console and follow these steps:
+Before we continue with the frontend implementation, we need to configure our Appwrite backend. Log into your [Appwrite Console](https://cloud.appwrite.io/console?doFollow=true) and follow these steps:
 
 1. Create a new project
-2. Create a database named "expense-tracker"
-3. Within this database, create a collection named "expenses"
+2. Open the **Databases** tab from the sidebar and create a database with the ID "expense-db"
+3. In your new database, create a collection with the ID "expenses"
 
-The expenses collection needs several attributes to store our expense data effectively:
+The expenses collection needs several attributes to store the expense data effectively. Open the **Attributes** tab of your new collection and add the following attributes:
 
-```typescript
-{
-	userId: string // Links expense to specific user
-	amount: float // Monetary value of expense
-	category: string // Predefined category (food, transport, etc.)
-	description: string // Details about the expense
-	date: datetime // When the expense occurred
-	createdAt: datetime // Record creation timestamp
-	updatedAt: datetime // Last modification timestamp
-}
+```markdown
+- `userId` (String, required)
+- `amount` (Float, required)
+- `category` (Enum, required)
+  - Elements: "food", "rent", "transportation", "entertainment", "shopping", "healthcare", "utilities", "education", "other"
+- `description` (String, required)
+- `date` (DateTime, required)
+- `createdAt` (DateTime, required)
+- `updatedAt` (DateTime, required)
 ```
 
-For the category field, we'll use an enumerated type with these values:
+Notice that the `category` attribute is an enumerated type with a set of predefined values. This structured approach helps us organize and filter expenses effectively. We have both a `date` attribute and a `createdAt` attribute because when an expense is created is not necessarily the same as when it occurred.
 
-- food
-- transport
-- shopping
-- entertainment
-- health
-- utilities
-- other
+## Project structure
 
-This structured approach helps us organize and filter expenses effectively.
-
-## Project Structure
-
-Our application needs a clear, organized structure. Create the following directory structure in your project:
+Our application needs a clear structure. Create the following directory structure in your project:
 
 ```
 src/
 ├── lib/
 │   ├── stores/
-│   │   └── auth.ts
-│   └── appwrite.ts
+│   │   └── auth.js
+│   └── appwrite.js
 ├── routes/
 │   ├── auth/
 │   │   └── +page.svelte
@@ -117,34 +102,35 @@ src/
 └── app.css
 ```
 
-This structure follows Svelte's conventions while keeping our code organized and maintainable. The `lib` directory contains reusable utilities and stores, while `routes` handles our application's pages and layouts.
+This structure follows Svelte's conventions while keeping our code organized and maintainable. The `lib` directory contains reusable utilities and stores, while `routes` handles our application's pages and layouts. We'll use the `lib/stores/auth.js` store to manage our user state, and the `lib/appwrite.js` file to handle our Appwrite operations.
 
-## Styling the Application
+The `routes` directory contains our application's pages and layouts. The `+layout.svelte` file is our main layout component, which we'll use to handle our application's structure and ensure that users can only access protected routes if they're authenticated.
 
-Our application uses Tailwind CSS for styling, enhanced with custom components and utilities. The styling includes:
+## Styling the application
 
-1. Custom color variables for consistent theming (primary teal, accent purple, and neutral colors)
-2. Base styles for typography and common elements
-3. Component-specific classes for our custom UI elements (buttons, forms, cards)
-4. Utility classes for layout and spacing
-5. Interactive element styles with hover and focus states
-6. Responsive design utilities for different screen sizes
+For our expense tracker, we'll use Tailwind CSS for styling. The styling includes:
 
-You can find the complete CSS code here: [Complete app.css code](https://github.com/yourusername/expense-tracker/blob/main/src/app.css). Copy this code into your `src/app.css` file.
+- Custom color variables for consistent theming
+- Base styles for typography and common elements
+- Component-specific classes for our custom UI elements
+- Interactive element styles with hover and focus states
 
-Having these styles in place from the start will ensure that each component we create has a polished, professional appearance immediately.
+You can find the complete CSS code here: [Complete app.css code](https://github.com/appwrite-community/svelte-expense-tracker/blob/main/src/app.css). Copy this code into your `src/app.css` file. There's no need to do anything else to make this work if you selected the "tailwindcss" option when creating your project.
 
-## Base HTML Template
+Having these styles in place will ensure that each component you create looks good from the start.
 
-First, let's set up our base HTML template. Create `src/app.html`:
+## Base HTML template
+
+For the base `src/app.html` file, we'll use the default Sveltekit template, but you might want to update the meta tags to include a title and description.
 
 ```html
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 	<head>
 		<meta charset="utf-8" />
 		<link rel="icon" href="%sveltekit.assets%/favicon.png" />
-		<meta name="viewport" content="width=device-width" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>Expense Tracker</title>
 		%sveltekit.head%
 	</head>
 	<body data-sveltekit-preload-data="hover">
@@ -153,43 +139,256 @@ First, let's set up our base HTML template. Create `src/app.html`:
 </html>
 ```
 
-This template provides the basic structure for our application. The `data-sveltekit-preload-data="hover"` attribute enables SvelteKit's built-in preloading feature, improving navigation performance.
+This template provides the basic structure for our application. The `data-sveltekit-preload-data="hover"` attribute enables SvelteKit's built-in preloading feature to make navigation faster.
 
-## Setting Up the Appwrite Client
+## Setting up the Appwrite client
 
-Let's set up our connection to Appwrite. Create `src/lib/appwrite.ts`, which will serve as our central configuration file for all Appwrite-related functionality:
+Let's set up our connection to Appwrite. If you haven't already, create a new file in the `src/lib` directory named `appwrite.js`. We'll use this file to configure the Appwrite client and provide access to our database and account services.
 
-```typescript
-import { Client, Databases, Account } from 'appwrite'
+```javascript
+import { Client, Account, Databases } from 'appwrite'
+import {
+	PUBLIC_APPWRITE_ENDPOINT,
+	PUBLIC_APPWRITE_PROJECT_ID,
+	PUBLIC_APPWRITE_DATABASE_ID,
+	PUBLIC_APPWRITE_COLLECTION_ID
+} from '$env/static/public'
 
 const client = new Client()
-	.setEndpoint(import.meta.env.PUBLIC_APPWRITE_ENDPOINT)
-	.setProject(import.meta.env.PUBLIC_APPWRITE_PROJECT_ID)
 
-export const databases = new Databases(client)
+client.setEndpoint(PUBLIC_APPWRITE_ENDPOINT).setProject(PUBLIC_APPWRITE_PROJECT_ID)
+
 export const account = new Account(client)
+export const databases = new Databases(client)
 
-export const DATABASE_ID = import.meta.env.PUBLIC_APPWRITE_DATABASE_ID
-export const EXPENSES_COLLECTION_ID = import.meta.env.PUBLIC_APPWRITE_COLLECTION_ID
+// Collection IDs from environment variables
+export const EXPENSES_COLLECTION_ID = PUBLIC_APPWRITE_COLLECTION_ID
+export const DATABASE_ID = PUBLIC_APPWRITE_DATABASE_ID
 ```
 
-This configuration file initializes our connection to Appwrite. The Client class creates a new Appwrite client instance, which we configure with our endpoint and project ID from our environment variables. We then create instances of the Databases and Account services, which we'll use throughout our application for database operations and user authentication.
+This configuration file initializes our connection to Appwrite. The `Client` class creates a new Appwrite client instance, which we configure with our endpoint and project ID from our environment variables. We then create instances of the `Databases` and `Account` services, which we'll use throughout our application for database operations and user authentication.
 
-## Managing Authentication State
+Finally, we export the collection IDs from our environment variables so that we can use them in other parts of our application.
 
-Our application needs to track the current user's authentication state. Create `src/lib/stores/auth.ts`:
+## Managing authentication state
 
-```typescript
+Our Svelte application needs to track the current user's authentication state. For that, we'll use a Svelte store. Create a new file in the `src/lib/stores` directory named `auth.js` and add the following code:
+
+```javascript
 import { writable } from 'svelte/store'
+import { account } from '$lib/appwrite'
 
 export const user = writable(null)
+
+export async function initAuth() {
+	try {
+		const currentUser = await account.get()
+		user.set(currentUser)
+		return currentUser
+	} catch (error) {
+		console.error('Error initializing auth:', error)
+		user.set(null)
+		return null
+	}
+}
 ```
 
-This creates a Svelte store to manage our user state. The store starts with null when no user is logged in. When a user authenticates, we'll update this store with their information, making it available throughout our application.
+This creates a Svelte store named `user` to manage our user state. The store starts with null when no user is logged in. When a user authenticates, we'll update this store with their information, making it available throughout our application.
 
-## Creating the Authentication Layout
+In the `initAuth` function, we're using the `account.get()` method to retrieve the current user's information from Appwrite. If successful, we update our `user` store with the user's information and return it. If there's an error, we log it and return null.
 
-The layout component handles our application's authentication flow and basic structure. Create `src/routes/+layout.svelte`:
+We'll also need a `login` and `register` function to handle user authentication:
+
+```javascript
+export async function login(email, password) {
+	try {
+		await account.createEmailPasswordSession(email, password)
+		await initAuth()
+	} catch (error) {
+		console.error('Login error:', error)
+		throw error
+	}
+}
+
+export async function register(email, password, name) {
+	try {
+		await account.create(ID.unique(), email, password, name)
+		await login(email, password)
+	} catch (error) {
+		console.error('Registration error:', error)
+		throw error
+	}
+}
+```
+
+In the `login` function, we're using the `account.createEmailPasswordSession` method to create a new email/password session for the user. This method automatically logs the user in and updates our `user` store with the user's information.
+
+For the `register` function, we're using the `account.create` method to create a new user account. We then call the `login` function to log the user in after creating their account.
+
+Appwrite also provides other authentication methods, such as OAuth, Google, and Apple. You can learn more about them in our [docs](https://appwrite.io/docs/products/auth?doFollow=true).
+
+Finally, we'll add a `logout` function to the `auth.js` file to handle user logout:
+
+```javascript
+export async function logout() {
+	try {
+		await account.deleteSession('current')
+		user.set(null)
+	} catch (error) {
+		console.error('Logout error:', error)
+	}
+}
+```
+
+The `logout` function uses the `account.deleteSession('current')` method to delete the current user's session from Appwrite. This effectively logs the user out and updates our `user` store to null.
+
+With this setup, we're ready to implement our authentication flow.
+
+## Building the authentication page
+
+For the authentication page, we'll create a new file in the `src/routes/auth` directory and name it `+page.svelte`. This file will handle the sign-in and sign-up functionality. For the JavaScript functionality of our authentication page, add the following `<script>` code:
+
+```svelte
+<script>
+	import { account } from '$lib/appwrite'
+	import { goto } from '$app/navigation'
+	import { ID } from 'appwrite'
+	import { login, register, user } from '$lib/stores/auth'
+
+	let email = ''
+	let password = ''
+	let name = ''
+	let isLogin = true
+	let loading = false
+	let error = null
+
+	async function handleSubmit() {
+		try {
+			loading = true
+			error = null
+
+			if (isLogin) {
+				await login(email, password)
+			} else {
+				await register(email, password, name)
+			}
+
+			// Update user store after successful login
+			const currentUser = await account.get()
+			user.set(currentUser)
+			goto('/')
+		} catch (e) {
+			console.error('Auth error:', e)
+			error = isLogin ? 'Invalid credentials' : 'Failed to create account'
+		} finally {
+			loading = false
+		}
+	}
+</script>
+```
+
+Here, we're handling the authentication form submission and logic. In the `handleSubmit` function, we check if the user is logging in or registering. We then call the appropriate function (`login` or `register`) and update our `user` store with the user's information. Finally, we redirect the user to the home page using the `goto` function.
+
+For the template section, add the following code:
+
+```svelte
+<div class="auth-container">
+	<div class="auth-content">
+		<div class="auth-header">
+			<div class="mb-3 text-4xl">💰</div>
+			<h2 class="auth-title">
+				{isLogin ? 'Welcome back!' : 'Create your account'}
+			</h2>
+			<p class="auth-subtitle">
+				{isLogin
+					? "Track your expenses with ease. Let's get you signed in."
+					: 'Start your journey to better expense management'}
+			</p>
+		</div>
+
+		{#if error}
+			<div class="auth-error">
+				{error}
+			</div>
+		{/if}
+
+		<form on:submit|preventDefault={handleSubmit} class="auth-form">
+			{#if !isLogin}
+				<div>
+					<label for="name" class="form-label"> Full Name </label>
+					<input
+						type="text"
+						id="name"
+						bind:value={name}
+						required
+						class="input form-input-container"
+						placeholder="John Doe"
+					/>
+				</div>
+			{/if}
+
+			<div>
+				<label for="email" class="form-label"> Email address </label>
+				<input
+					type="email"
+					id="email"
+					bind:value={email}
+					required
+					class="input form-input-container"
+					placeholder="you@example.com"
+				/>
+			</div>
+
+			<div>
+				<label for="password" class="form-label"> Password </label>
+				<input
+					type="password"
+					id="password"
+					bind:value={password}
+					required
+					minlength="8"
+					class="input form-input-container"
+					placeholder="••••••••"
+				/>
+			</div>
+
+			<div>
+				<button
+					type="submit"
+					class="btn btn-primary w-full {loading ? 'opacity-75 cursor-not-allowed' : ''}"
+					disabled={loading}
+				>
+					{#if loading}
+						<div class="loading-spinner-small mr-2"></div>
+					{/if}
+					{isLogin ? 'Sign in' : 'Create account'}
+				</button>
+			</div>
+		</form>
+
+		<div class="text-center">
+			<button
+				on:click={() => (isLogin = !isLogin)}
+				class="text-sm text-primary-600 hover:text-primary-500"
+			>
+				{isLogin ? "Don't have an account? Sign up" : 'Already have an account? Sign in'}
+			</button>
+		</div>
+	</div>
+</div>
+```
+
+This template creates an interface for both signing in and creating new accounts. The form dynamically changes based on whether the user is logging in or signing up, showing additional fields when needed.
+
+Notice that we're using the CSS classes from our `app.css` file to style our component. The template also handles loading states and error messages which will provide clear feedback to users during the authentication process.
+
+With this done, you can navigate to the `/auth` route in your browser and test the authentication functionality. It should look like this:
+
+![gif demo here]
+
+## Creating our layout component
+
+Let's structure our application's layout. We'll use the `src/routes/+layout.svelte` file to do this, and also ensure that users can only access protected routes if they're authenticated.
 
 ```svelte
 <script>
@@ -240,7 +439,7 @@ This layout component serves several crucial purposes:
 
 The `onMount` function runs when the component is first mounted. It attempts to retrieve the current user's information from Appwrite. If successful, it updates our user store and handles any necessary redirects. If there's no authenticated user, it ensures they're redirected to the authentication page.
 
-## Building the Authentication Page
+## Building the authentication page
 
 Now let's create our authentication page that handles both sign-in and sign-up. Create `src/routes/auth/+page.svelte`:
 
@@ -375,7 +574,7 @@ This script section handles the core authentication logic. Let's add the templat
 
 This authentication page provides a clean, user-friendly interface for both signing in and creating new accounts. The form dynamically changes based on whether the user is logging in or signing up, showing additional fields when needed. The component handles loading states and error messages, providing clear feedback to users during the authentication process.
 
-## Building the Main Expense Tracker Page
+## Building the main expense tracker page
 
 The heart of our application is the expense tracker page. This component handles displaying, creating, updating, and deleting expenses, along with showing important statistics. Let's break down its implementation step by step.
 
@@ -569,7 +768,7 @@ Finally, let's add utility functions for managing expenses:
 
 These utility functions handle tasks like formatting currency amounts, retrieving category information, and setting up the edit form when modifying an expense.
 
-## Building the User Interface
+## Building the user interface
 
 Now that we have our core functionality in place, let's build the user interface. Our UI will consist of three main sections: statistics overview, expense form, and expense list. Let's add this template section to our `src/routes/+page.svelte` file:
 
@@ -763,7 +962,7 @@ Each expense item displays:
 
 The list is ordered with the most recent expenses first, making it easy for users to track their latest spending.
 
-## Running and Testing the Application
+## Running and testing the application
 
 With all components and styles in place, we can now run our application. Start the development server using:
 
@@ -781,7 +980,7 @@ Visit `http://localhost:5173` in your browser, and you should see a fully functi
 
 The application combines Svelte's reactive capabilities with Appwrite's backend services to create a responsive, real-time expense tracking experience. Users can manage their expenses efficiently while enjoying a polished, professional interface.
 
-## Next Steps and Enhancements
+## Next steps and enhancements
 
 Our expense tracker provides a solid foundation for personal finance management, but there's always room for growth. Consider enhancing the application by implementing data visualizations using chart libraries to help users understand their spending patterns. You might also add advanced filtering capabilities, allowing users to search and sort their expenses more effectively. The ability to export data for external analysis and custom category management would further empower users to take control of their financial data.
 
