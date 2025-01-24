@@ -1,12 +1,17 @@
-# Building an Expense Tracker with Svelte and Appwrite: A Comprehensive Guide
+# Building an Expense Tracker with Svelte and Appwrite
 
-Modern web applications often require robust authentication and real-time data management capabilities. In this guide, we'll build a full-stack expense tracking application that demonstrates how to implement these features using Svelte and Appwrite. By the end of this tutorial, you'll have created a functional expense tracker with user authentication, real-time updates, and a clean, responsive interface.
+In this tutorial, we'll build a full-stack expense tracking application with features like user authentication and expense management. You'll learn how to:
 
-## Understanding the Technology Stack
+- Set up a Svelte project with TypeScript and Tailwind
+- Integrate Appwrite for authentication and database
+- Create a responsive UI for managing expenses
+- Build a complete CRUD interface for expenses
 
-Before we begin coding, let's understand why we've chosen these specific technologies. Svelte is a modern JavaScript framework that compiles at build time, resulting in highly efficient applications. Unlike traditional frameworks that include a runtime library, Svelte converts your components into vanilla JavaScript at build time, leading to smaller bundle sizes and better performance.
+## Tech Stack
 
-Appwrite complements Svelte by providing a secure, self-hosted backend-as-a-service platform. It handles authentication, database operations, and real-time updates, allowing us to focus on building the frontend experience. This combination creates a powerful foundation for our expense tracking application.
+- **Frontend**: SvelteKit with TypeScript and Tailwind CSS
+- **Backend**: Appwrite for auth and database operations
+- **Utilities**: date-fns for date formatting
 
 ## Prerequisites
 
@@ -784,7 +789,7 @@ Our expense tracker provides a solid foundation for personal finance management,
 
 ## Conclusion
 
-Throughout this tutorial, we've built a modern, full-stack expense tracking application that demonstrates the power of combining Svelte with Appwrite. By implementing user authentication, real-time data management, and a responsive user interface, we've created a practical tool that solves a real-world problem while exploring important web development concepts.
+Throughout this tutorial, we've built a modern, full-stack expense tracking application that demonstrates the power of combining Svelte with Appwrite. By implementing user authentication and a responsive user interface, we've created a practical tool that solves a real-world problem while exploring important web development concepts.
 
 The project showcases several key aspects of modern web development: component-based architecture with Svelte, secure authentication and database management with Appwrite, and responsive design with Tailwind CSS. We've seen how these technologies work together to create a seamless user experience, from the initial login to managing daily expenses.
 
