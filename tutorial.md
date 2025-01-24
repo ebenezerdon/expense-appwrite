@@ -116,6 +116,21 @@ src/
 
 This structure follows Svelte's conventions while keeping our code organized and maintainable. The `lib` directory contains reusable utilities and stores, while `routes` handles our application's pages and layouts.
 
+## Styling the Application
+
+Our application uses Tailwind CSS for styling, enhanced with custom components and utilities. The styling includes:
+
+1. Custom color variables for consistent theming (primary teal, accent purple, and neutral colors)
+2. Base styles for typography and common elements
+3. Component-specific classes for our custom UI elements (buttons, forms, cards)
+4. Utility classes for layout and spacing
+5. Interactive element styles with hover and focus states
+6. Responsive design utilities for different screen sizes
+
+You can find the complete CSS code here: [Complete app.css code](https://github.com/yourusername/expense-tracker/blob/main/src/app.css). Copy this code into your `src/app.css` file.
+
+Having these styles in place from the start will ensure that each component we create has a polished, professional appearance immediately.
+
 ## Base HTML Template
 
 First, let's set up our base HTML template. Create `src/app.html`:
@@ -387,6 +402,7 @@ First, create `src/routes/+page.svelte` and start with our imports and state man
 		description: '',
 		category: 'other'
 	}
+</script>
 ```
 
 Here we're setting up our component's state. The `expenses` array will hold our list of expenses, while `loading` and `error` handle our application's loading and error states. We maintain separate form data for creating new expenses and editing existing ones.
@@ -743,87 +759,6 @@ Each expense item displays:
 - Edit and delete buttons
 
 The list is ordered with the most recent expenses first, making it easy for users to track their latest spending.
-
-## Styling the Application
-
-Our application uses Tailwind CSS for styling. We'll need to add some custom styles to `src/app.css` to handle specific components like the modal overlay, form inputs, and expense cards. The styling includes:
-
-- Custom color variables for consistent theming
-- Base styles for common elements
-- Component-specific classes for our custom UI elements
-- Utility classes for layout and spacing
-- Custom animations for interactive elements
-
-## Applying Styles and Visual Polish
-
-The visual design of our expense tracker plays a crucial role in its usability. We'll use Tailwind CSS for styling, enhanced with custom components and utilities. Create a new file `src/app.css` to house our application's styles.
-
-Our styling approach focuses on creating a consistent, accessible interface that works well across different screen sizes. We organize our CSS into several key areas:
-
-### Base Styling
-
-The base styles establish our application's foundational visual elements. These include color schemes, typography, and basic layout principles. We use CSS custom properties (variables) to maintain consistent colors throughout the application:
-
-```css
-:root {
-	--color-primary: #4f46e5;
-	--color-primary-dark: #4338ca;
-	--color-secondary: #64748b;
-	--color-accent: #0ea5e9;
-	--color-background: #f8fafc;
-	--color-surface: #ffffff;
-	--color-error: #ef4444;
-}
-```
-
-### Component Styles
-
-We've created specific styles for recurring UI elements like cards, forms, and buttons. These components maintain consistent spacing and interaction patterns throughout the application. For example, our card components use consistent padding and border radius values:
-
-```css
-.stats-card {
-	@apply p-6 rounded-lg shadow-sm bg-white;
-	@apply transition-transform hover:transform hover:scale-102;
-}
-
-.stats-card-primary {
-	@apply border-l-4 border-primary-500;
-}
-```
-
-### Interactive Elements
-
-Special attention has been paid to interactive elements like buttons and form inputs. We ensure these elements provide clear visual feedback and maintain accessibility:
-
-```css
-.btn {
-	@apply px-4 py-2 rounded-md font-medium transition-colors;
-	@apply focus:outline-none focus:ring-2 focus:ring-offset-2;
-}
-
-.btn-primary {
-	@apply bg-primary-500 text-white hover:bg-primary-600;
-	@apply focus:ring-primary-500;
-}
-```
-
-### Responsive Design
-
-Our styles adapt seamlessly to different screen sizes. We use Tailwind's responsive modifiers to adjust layouts and spacing based on viewport width:
-
-```css
-.page-container {
-	@apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
-	@apply py-8 sm:py-12;
-}
-
-.stats-grid {
-	@apply grid gap-6;
-	@apply grid-cols-1 sm:grid-cols-2 lg:grid-cols-3;
-}
-```
-
-The complete styling for our application includes many more components and utilities. You can find the full CSS code here: [Complete app.css code](https://github.com/yourusername/expense-tracker/blob/main/src/app.css)
 
 ## Running and Testing the Application
 
